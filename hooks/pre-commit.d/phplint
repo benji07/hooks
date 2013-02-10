@@ -1,0 +1,61 @@
+#!/bin/bash
+# PHP CodeSniffer pre-commit hook for git
+TMP_STAGING=".tmp_staging"
+
+# stolen from template file
+if $(git rev-parse --verify HEAD > /dev/null)
+then
+    against=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# this is the magic:
+# retrieve all files in staging area that are added, modified or renamed
+# but no deletions etc
+FILES=$(git diff-index --name-only --cached --diff-filter=ACMR $against -- )
+
+if [ "$FILES" == "" ]; then
+    exit 0
+fi
+
+# create temporary copy of staging area
+if [ -e $TMP_STAGING ]; then
+    rm -rf $TMP_STAGING
+fi
+mkdir $TMP_STAGING
+
+# match files against whitelist
+RESULT=0
+LOG_FILE="phplint.log"
+
+if [ -f $LOG_FILE ]; then
+  rm $LOG_FILE
+fi
+
+for FILE in $FILES
+do
+    echo "$FILE" | egrep -q "\.php$"
+    RETVAL=$?
+    if [ "$RETVAL" -eq "0" ]
+    then
+      ID=$(git diff-index --cached HEAD $FILE | cut -d " " -f4)
+      mkdir -p "$TMP_STAGING/$(dirname $FILE)"
+      git cat-file blob $ID > "$TMP_STAGING/$FILE"
+
+      $(cd $TMP_STAGING && php -l $FILE 2>> ../$LOG_FILE 1> /dev/null && cd ..)
+      RETURN=$?
+
+      if [ $RETURN -ne 0 ]; then
+        RESULT=$RETURN
+      fi
+    fi
+done
+
+cat $LOG_FILE
+rm $LOG_FILE
+
+rm -rf $TMP_STAGING
+
+exit $RESULT
