@@ -13,7 +13,7 @@ TMP_STAGING=".tmp_staging"
 PHPCS_FILE_PATTERN=\.php$
 
 # parse config
-CONFIG_FILE=$(dirname $0)/../../.csconfig
+CONFIG_FILE=$(dirname $0)/../../../.csconfig
 if [ -e $CONFIG_FILE ]; then
     . $CONFIG_FILE
 fi
