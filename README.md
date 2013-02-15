@@ -8,7 +8,8 @@ Ensuite vous prenez un projet sur lequel vous voulez installer les hooks et vous
 
 ```shell
 git install-hook
-``
+```
+
 ## Configuration
 
 Au niveau de votre projet vous devez créer un fichier .csconfig qui peut contenir les variable suivantes:
