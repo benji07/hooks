@@ -5,15 +5,20 @@
 # @author Sebastian Kaspari <s.kaspari@googlemail.com>
 #
 # see the README
-
 PHPCS_BIN=$(which phpcs)
 PHPCS_CODING_STANDARD=PSR2
 PHPCS_IGNORE=
 TMP_STAGING=".tmp_staging"
 PHPCS_FILE_PATTERN=\.php$
 
-# parse config
+# parse project configuration
 CONFIG_FILE=$(dirname $0)/../../../.csconfig
+if [ -e $CONFIG_FILE ]; then
+    . $CONFIG_FILE
+fi
+
+# parse user configuration
+CONFIG_FILE=$(dirname $0)/../config
 if [ -e $CONFIG_FILE ]; then
     . $CONFIG_FILE
 fi
@@ -24,8 +29,10 @@ if [ ! -x $PHPCS_BIN ]; then
     exit 1
 fi
 
+
+
 # stolen from template file
-if git rev-parse --verify HEAD
+if $(git rev-parse --verify HEAD 2> /dev/null)
 then
     against=HEAD
 else
@@ -89,7 +96,7 @@ fi
 STAGED_FILES=""
 for FILE in $FILES_TO_CHECK
 do
-  ID=$(git diff-index --cached HEAD $FILE | cut -d " " -f4)
+  ID=$(git diff-index --cached $against $FILE | cut -d " " -f4)
 
   # create staged version of file in temporary staging area with the same
   # path as the original file so that the phpcs ignore filters can be applied

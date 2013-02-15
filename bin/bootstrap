@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ ! -d ~/bin ]; then
+    mkdir ~/bin
+
+    #on doit ajouter le dossier dans le PATH
+    echo "You must add the ~/bin directory to your path"
+fi
+
+DIR=$(cd $(dirname $0); pwd)
+
+ln -snf $DIR/git-install-hook ~/bin/git-install-hook

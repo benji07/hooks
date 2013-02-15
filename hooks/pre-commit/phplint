@@ -2,8 +2,21 @@
 # PHP CodeSniffer pre-commit hook for git
 TMP_STAGING=".tmp_staging"
 
+PHP_BIN=$(which php)
+
+CONFIG_FILE=$(dirname $0)/../../../.csconfig
+if [ -e $CONFIG_FILE ]; then
+    . $CONFIG_FILE
+fi
+
+# parse user configuration
+CONFIG_FILE=$(dirname $0)/../config
+if [ -e $CONFIG_FILE ]; then
+    . $CONFIG_FILE
+fi
+
 # stolen from template file
-if $(git rev-parse --verify HEAD > /dev/null)
+if $(git rev-parse --verify HEAD 2> /dev/null)
 then
     against=HEAD
 else
@@ -40,11 +53,11 @@ do
     RETVAL=$?
     if [ "$RETVAL" -eq "0" ]
     then
-      ID=$(git diff-index --cached HEAD $FILE | cut -d " " -f4)
+      ID=$(git diff-index --cached $against $FILE | cut -d " " -f4)
       mkdir -p "$TMP_STAGING/$(dirname $FILE)"
       git cat-file blob $ID > "$TMP_STAGING/$FILE"
 
-      $(cd $TMP_STAGING && php -l $FILE 2>> ../$LOG_FILE 1> /dev/null && cd ..)
+      $(cd $TMP_STAGING && $PHP_BIN -l $FILE 2>> ../$LOG_FILE 1> /dev/null && cd ..)
       RETURN=$?
 
       if [ $RETURN -ne 0 ]; then

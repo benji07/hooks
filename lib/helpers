@@ -72,8 +72,16 @@ function step {
     echo
     echo "    $CMD"
   else
+
     LOG_FILE="output.log"
-    local STATUS=$( eval "$CMD >> $LOG_FILE 2>&1" ; echo $? )
+
+    if [ -f $LOG_FILE ]; then
+      rm $LOG_FILE
+    fi
+
+    touch $LOG_FILE
+
+    local STATUS=$( eval "$CMD > $LOG_FILE 2>&1" ; echo $? )
 
     if [ -z "$STATUS" -o "$STATUS" -eq 0 ]; then
       printf "%${ALIGN}s\n" $( colorize "<info>[ok]</info>" )
@@ -81,6 +89,7 @@ function step {
       printf "%${ALIGN}s\n" $( colorize "<error>[fail]</error>" )
       cat $LOG_FILE
     fi
+
     rm $LOG_FILE
 
     return $STATUS

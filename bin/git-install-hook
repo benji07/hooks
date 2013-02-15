@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ ! -d $( pwd )/.git ]; then
+  echo "$0 must be run at the root of a git repository"
+  exit 1
+fi
+
+# On doit regarder les hooks dans ../hooks, on prend tout les dossiers
+DIR=$(dirname $(readlink $0))
+
+source $DIR/../lib/helpers
+
+for hook_dir in $(find $DIR/../hooks -type d -mindepth 1 -maxdepth 1); do
+    TYPE=$(basename $hook_dir)
+
+    DEST=".git/hooks/$TYPE"
+
+    if [ ! -d .git/hooks/$TYPE.d ]; then
+        step "creating $TYPE.d directory"
+        mkdir .git/hooks/$TYPE.d
+
+        if [ -f $DEST ]; then
+            step "moving existing <comment>$TYPE</comment> hook"
+            mv $DEST .git/hooks/$TYPE.d/$( basename $DEST )
+        fi
+
+        if [ -h $DEST ]; then
+            step "relinking existing <comment>$TYPE</comment> hook"
+            TMP=$( readlink $DEST )
+            rm -f $DEST
+            ( $0 $TYPE $TMP )
+        fi
+    fi
+
+    if [ ! -h $DEST ]; then
+        step "installing <comment>hook_dir</comment> hook" "cd .git/hooks ; ln -s $DIR/hook_dir $TYPE"
+    fi
+
+    for hook in $(find $hook_dir -type f); do
+        hook_name=$(basename $hook)
+        if [ -f .git/hooks/$TYPE.d/$hook_name -o -h .git/hooks/$TYPE.d/$hook_name ]; then
+            colorize "looks like <comment>$hook_name</comment> is already installed as a <comment>$TYPE</comment> hook"
+            #exit 1
+        else
+            step "installing <comment>$hook_name</comment> as <comment>$TYPE</comment>" "( cd .git/hooks/$TYPE.d ; ln -s $hook $hook_name )"
+        fi
+    done
+done
