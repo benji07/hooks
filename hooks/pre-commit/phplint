@@ -53,7 +53,7 @@ do
     RETVAL=$?
     if [ "$RETVAL" -eq "0" ]
     then
-      ID=$(git diff-index --cached $against $FILE | cut -d " " -f4)
+      ID=$(git diff-index --cached HEAD $FILE | cut -d " " -f4)
       mkdir -p "$TMP_STAGING/$(dirname $FILE)"
       git cat-file blob $ID > "$TMP_STAGING/$FILE"
 
