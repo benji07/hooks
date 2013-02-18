@@ -16,7 +16,7 @@ if [ -e $CONFIG_FILE ]; then
 fi
 
 # stolen from template file
-if $(git rev-parse --verify HEAD 2> /dev/null)
+if git rev-parse --verify HEAD
 then
     against=HEAD
 else
