@@ -2,9 +2,16 @@
 
 ## Installation
 
-Après avoir récupérer le code du projet, vous devez executer le script bin/bootstrap, celui-ci va vous ajouter une nouvelle commande git, git install hook.
+Récuperer le code du projet et executer le script bin/bootstrap :
 
-Ensuite vous prenez un projet sur lequel vous voulez installer les hooks et vous faite un
+```shell
+wget -O hooks.zip https://github.com/benji07/hooks/archive/master.zip
+unzip hooks.zip
+./hooks-master/bin/bootstrap
+```
+
+Celui-ci va vous ajouter une nouvelle commande git, git install hook.
+Ensuite vous prenez un projet sur lequel vous voulez installer les hooks, placez vous dans à la racine de son repository Git et faite un :
 
 ```shell
 git install-hook
